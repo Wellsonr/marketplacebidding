@@ -51,8 +51,11 @@ export default function Signin(props) {
       email: values.email || undefined,
       password: values.password || undefined
     }
+      console.log("lihat user: ", user);
 
     signin(user).then((data) => {
+      console.log("lihat data: ", data);
+      
       if (data.error) {
         setValues({ ...values, error: data.error})
       } else {

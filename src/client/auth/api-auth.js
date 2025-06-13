@@ -1,6 +1,8 @@
 const ip = process.env.REACT_APP_API_URL;
 
 const signin = async (user) => {
+  console.log("lihat ip: ", ip, user);
+
   try {
     let response = await fetch(`${ip}/auth/signin/`, {
       method: 'POST',
@@ -11,8 +13,12 @@ const signin = async (user) => {
       credentials: 'include',
       body: JSON.stringify(user)
     })
+    console.log("liat resp: ", response);
+
     return await response.json()
-  } catch(err) {
+  } catch (err) {
+    console.log("liat resp: ", err);
+
     console.log(err)
   }
 }
@@ -21,7 +27,7 @@ const signout = async () => {
   try {
     let response = await fetch(`${ip}/auth/signout/`, { method: 'GET' })
     return await response.json()
-  } catch(err) {
+  } catch (err) {
     console.log(err)
   }
 }
