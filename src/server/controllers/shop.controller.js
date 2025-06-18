@@ -3,8 +3,7 @@ import extend from 'lodash/extend'
 import errorHandler from './../helpers/dbErrorHandler'
 import formidable from 'formidable'
 import fs from 'fs'
-// import defaultImage from './../../client/assets/images/default.png'
-
+import path from "path";
 const create = (req, res) => {
   let form = new formidable.IncomingForm()
   form.keepExtensions = true
@@ -55,9 +54,8 @@ const photo = (req, res, next) => {
   next()
 }
 const defaultPhoto = (req, res) => {
-  return null; res.sendFile(process.cwd() + defaultImage)
+  res.sendFile(path.join(process.cwd(), 'src/client/assets/images/default.png'));
 }
-
 const read = (req, res) => {
   req.shop.image = undefined
   return res.json(req.shop)

@@ -44,9 +44,10 @@ app.use(cors({
 }))
 
 app.use('/dist', express.static(path.join(CURRENT_WORKING_DIR, 'dist')))
+app.use('/static', express.static(path.join(__dirname, '../client/assets/images')));
 
 // mount routes
-app.use('/api/users', userRoutes)
+app.use('/', userRoutes)
 app.use('/', authRoutes)
 app.use('/', shopRoutes)
 app.use('/', productRoutes)

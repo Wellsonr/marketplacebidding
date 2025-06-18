@@ -15,13 +15,14 @@ import Person from '@material-ui/icons/Person'
 import Divider from '@material-ui/core/Divider'
 import DeleteUser from './DeleteUser'
 import auth from './../auth/auth-helper'
-import {read} from './api-user.js'
-import {Redirect, Link} from 'react-router-dom'
+import { read } from './api-user.js'
+import { Redirect, Link } from 'react-router-dom'
 import config from '../../config/config.js'
 // import stripeButton from './../assets/images/stripeButton.png'
 import MyOrders from './../order/MyOrders'
 import Auctions from './../auction/Auctions'
-import {listByBidder} from './../auction/api-auction.js'
+import { listByBidder } from './../auction/api-auction.js'
+
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -50,6 +51,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Profile({ match }) {
+
   const classes = useStyles()
   const [user, setUser] = useState({})
   const [redirectToSignin, setRedirectToSignin] = useState(false)
@@ -62,14 +64,14 @@ export default function Profile({ match }) {
     const signal = abortController.signal
     listByBidder({
       userId: match.params.userId
-    }, {t: jwt.token}, signal).then((data) => {
+    }, { t: jwt.token }, signal).then((data) => {
       if (data.error) {
         setRedirectToSignin(true)
       } else {
         setAuctions(data)
       }
     })
-    return function cleanup(){
+    return function cleanup() {
       abortController.abort()
     }
   }, [])
@@ -86,7 +88,7 @@ export default function Profile({ match }) {
     const signal = abortController.signal
     read({
       userId: match.params.userId
-    }, {t: jwt.token}, signal).then((data) => {
+    }, { t: jwt.token }, signal).then((data) => {
       if (data && data.error) {
         setRedirectToSignin(true)
       } else {
@@ -94,62 +96,63 @@ export default function Profile({ match }) {
       }
     })
 
-    return function cleanup(){
+    return function cleanup() {
       abortController.abort()
     }
 
   }, [match.params.userId])
 
   if (redirectToSignin) {
-    return <Redirect to='/signin'/>
+    return <Redirect to='/signin' />
   }
+
   return (
-      <Paper className={classes.root} elevation={4}>
-        <Typography variant="h6" className={classes.title}>
-          Profile
+    <Paper className={classes.root} elevation={4}>
+      <Typography variant="h6" className={classes.title}>
+        Profile
+      </Typography>
+      <List dense>
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar>
+              <Person />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={user.name} secondary={user.email} /> {
+            auth.isAuthenticated().user && auth.isAuthenticated().user._id == user._id &&
+            (<ListItemSecondaryAction>
+              {user.seller &&
+                (user.stripe_seller
+                  ? (<Button variant="contained" disabled className={classes.stripe_connected}>
+                    Stripe connected
+                  </Button>)
+                  : (<a href={"https://connect.stripe.com/oauth/authorize?response_type=code&client_id=" + config.stripe_connect_test_client_id + "&scope=read_write"} className={classes.stripe_connect}>
+                    <img src="/static/stripeButton.png" alt="Stripe Button" />
+                  </a>)
+                )
+              }
+              <Link to={"/user/edit/" + user._id}>
+                <IconButton aria-label="Edit" color="primary">
+                  <Edit />
+                </IconButton>
+              </Link>
+              <DeleteUser userId={user._id} />
+            </ListItemSecondaryAction>)
+          }
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <ListItemText primary={"Joined: " + (
+            new Date(user.created)).toDateString()} />
+        </ListItem>
+      </List>
+      <MyOrders />
+      <Paper className={classes.auctions} elevation={4}>
+        <Typography type="title" color="primary">
+          Auctions you bid in
         </Typography>
-        <List dense>
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar>
-                <Person/>
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={user.name} secondary={user.email}/> {
-             auth.isAuthenticated().user && auth.isAuthenticated().user._id == user._id &&
-             (<ListItemSecondaryAction>
-               {user.seller &&
-                 (user.stripe_seller
-                   ? (<Button variant="contained" disabled className={classes.stripe_connected}>
-                       Stripe connected
-                      </Button>)
-                   : (<a href={"https://connect.stripe.com/oauth/authorize?response_type=code&client_id="+config.stripe_connect_test_client_id+"&scope=read_write"} className={classes.stripe_connect}>
-                       {/* <img src={stripeButton}/> */}
-                      </a>)
-                  )
-                }
-               <Link to={"/user/edit/" + user._id}>
-                 <IconButton aria-label="Edit" color="primary">
-                   <Edit/>
-                 </IconButton>
-               </Link>
-               <DeleteUser userId={user._id}/>
-             </ListItemSecondaryAction>)
-            }
-          </ListItem>
-          <Divider/>
-          <ListItem>
-            <ListItemText primary={"Joined: " + (
-              new Date(user.created)).toDateString()}/>
-          </ListItem>
-        </List>
-        <MyOrders/>
-        <Paper className={classes.auctions} elevation={4}>
-          <Typography type="title" color="primary">
-              Auctions you bid in
-          </Typography>
-          <Auctions  auctions={auctions} removeAuction={removeAuction} />
-        </Paper>
+        <Auctions auctions={auctions} removeAuction={removeAuction} />
       </Paper>
-    )
+    </Paper>
+  )
 }
